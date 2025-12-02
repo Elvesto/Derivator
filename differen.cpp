@@ -2,6 +2,9 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <math.h>
+
+static Node* DerivatePow(Node* node);
 
 Node* CopyTree(Node* node) {
     assert(node);
@@ -36,23 +39,37 @@ Node* Derivate(Node* node) {
         case OP: {
             switch (node->value.typeOp) {
                 case ADD: {
-                    temp = ADD_(Derivate(node->left), Derivate(node->right));;
+                    temp = ADD_(dL(node), dR(node));
                     break;
                 }
                 case SUB: {
-                    temp = ADD_(Derivate(node->left), Derivate(node->right));;
+                    temp = ADD_(dL(node), dR(node));
                     temp->value.typeOp = SUB;
                     break;
                 }
                 case MUL: {
-                    Node* cR = CopyTree(node->right);
-                    Node* cL = CopyTree(node->left);
-                    
-                    Node* dR = Derivate(node->right);
-                    Node* dL = Derivate(node->left);
-
-                    temp = ADD_(MUL_(dL, cR), MUL_(cL, dR));
+                    temp = ADD_(MUL_(dL(node), cR(node)), MUL_(cL(node), dR(node)));
                     break;
+                }
+                case DIV: {
+                    temp = ADD_(MUL_(dL(node), cR(node)), MUL_(cL(node), dR(node)));
+                    temp->value.typeOp = SUB;
+                    break;
+                }
+                case POW: {
+                    temp = DerivatePow(node);
+                    break;
+                }
+                case LN: {
+                    temp = MUL_(dL(node), NewNodePro(OP, {.typeOp = DIV}, NewNodePro(NUM, {.typeNum = 1}, NULL, NULL), cL(node)));
+                    break;
+                }
+                case SIN: {
+                    temp = MUL_(NewNodePro(OP, {.typeOp = COS}, cL(node), NULL), dL(node));
+                    break;
+                }
+                case COS: {
+                    temp = MUL_(NewNodePro(NUM, {.typeNum = -1}, NULL, NULL), (NewNodePro(OP, {.typeOp = COS}, cL(node), NULL), dL(node)));
                 }
             }
             break;
@@ -70,5 +87,24 @@ Node* Derivate(Node* node) {
             return NULL;
         }
     }
+    return temp;
+}
+
+Node* DerivatePow(Node* node) {
+    assert(node);
+    Node* temp = NULL;
+    if (Search(node->right, VAR) != NULL) {
+        temp = MUL_(CopyTree(node), Derivate(MUL_(NewNodePro(OP, {.typeOp = LN}, cL(node), NULL), cR(node))));
+        return temp;
+    }
+
+    if (Search(node->left, VAR) != NULL) {
+        Node* tempNum = NewNodePro(OP, {.typeOp = SUB}, cR(node), NewNodePro(NUM, {.typeNum = 1}, NULL, NULL));
+        temp = MUL_(cR(node), MUL_(Derivate(cL(node)), NewNodePro(OP, {.typeOp = POW}, cL(node), tempNum)));
+        return temp;
+    }
+
+    temp = NewNodePro(NUM, {.typeNum = 0}, NULL, NULL);
+
     return temp;
 }

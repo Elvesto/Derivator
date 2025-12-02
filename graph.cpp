@@ -108,6 +108,7 @@ const char* ValueToStr(const Node* node) {
                 case MUL: return "*";
                 case DIV: return "/";
                 case POW: return "^";
+                case LN:  return "ln";
                 default: return NULL;
             }
         }

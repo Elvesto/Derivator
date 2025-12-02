@@ -193,6 +193,9 @@ static Node* ReadNode(char** ppos) {
         if (node->right != NULL) { node->right->parent = node; }
 
         pos++;
+
+        while (isspace(*pos)) { pos++; }  // skip spaces
+
         *ppos = pos;
         return node;
     } else if (strncmp(pos, "nil", sizeof("nil") - 1) == 0) {
@@ -285,6 +288,10 @@ void ParseType(Node* node, const char* idx) {
             node->data = OP;
             node->value.typeOp = DIV;
             break;
+        case '^':
+            node->data = OP;
+            node->value.typeOp = POW;
+            break;
         case 'x':
             node->data = VAR;
             node->value.typeVar = X;
@@ -302,6 +309,12 @@ void ParseType(Node* node, const char* idx) {
             if (temp != 0) {
                 node->data = NUM;
                 node->value.typeNum = temp;
+            } else if (strncmp(idx, "ln", sizeof("ln") - 1) == 0) {
+                node->data = OP;
+                node->value.typeOp = LN;
+            } else if (strncmp(idx, "sin", sizeof("sin") - 1) == 0) {
+                node->data = OP;
+                node->value.typeOp = SIN;
             } else {
                 fprintf(stderr, "Unknown %s\n", idx);
             }

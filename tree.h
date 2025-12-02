@@ -18,6 +18,11 @@ enum TypeOperation {
     MUL = 3,
     DIV = 4,
     POW = 5,
+    LN  = 6, 
+    SIN = 7,
+    COS = 8,
+    TG  = 9,
+    CTG = 10
 };
 
 enum TypeVar {

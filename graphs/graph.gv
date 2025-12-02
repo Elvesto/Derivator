@@ -1,17 +1,13 @@
 digraph gh {
 graph [rankdir=TB];
-	node4 [label="OP\n value=+ \n left = 0x504000000290\n right = 0x504000000250"];
-	node4 -> node5 [color=red];
-	node5 [label="OP\n value=* \n left = 0x504000000210\n right = 0x504000000150"];
-	node5 -> node6 [color=red];
-	node6 [label="NUM\n value=1.000000 \n left = (nil)\n right = (nil)"];
-	node5 -> node7 [color=red];
-	node7 [label="NUM\n value=1.000000 \n left = (nil)\n right = (nil)"];
-	node4 -> node8 [color=red];
-	node8 [label="OP\n value=* \n left = 0x504000000190\n right = 0x5040000001d0"];
-	node8 -> node9 [color=red];
-	node9 [label="VAR\n value=x \n left = (nil)\n right = (nil)"];
-	node8 -> node10 [color=red];
-	node10 [label="NUM\n value=0.000000 \n left = (nil)\n right = (nil)"];
+	node29 [label="OP\n value=^ \n left = 0x504000000050\n right = 0x504000000110"];
+	node29 -> node30 [color=red];
+	node30 [label="OP\n value=* \n left = 0x504000000090\n right = 0x5040000000d0"];
+	node30 -> node31 [color=red];
+	node31 [label="NUM\n value=4.000000 \n left = (nil)\n right = (nil)"];
+	node30 -> node32 [color=red];
+	node32 [label="VAR\n value=x \n left = (nil)\n right = (nil)"];
+	node29 -> node33 [color=red];
+	node33 [label="VAR\n value=x \n left = (nil)\n right = (nil)"];
 
 }

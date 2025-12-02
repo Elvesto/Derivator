@@ -21,11 +21,11 @@ int main(const int argc, const char* const argv[]) {
     Node* d = Derivate(tree.root);
     dif.root = d;
 
-    TreeDump(&tree);
     TreeDump(&dif);
+    TreeDump(&tree);
 
-    TreeDestroy(&tree);
     TreeDestroy(&dif);
+    TreeDestroy(&tree);
     
     fclose(fileLoadTree.file);
 
