@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include <math.h>
 
 uint64_t SizeFile(FILE* file) {
     assert(file);
@@ -69,4 +70,9 @@ int CheckInArray(const char* value, const char* arr[], int size) {
 void ClearStream() {
     int c = 0;
     while ((c = getchar()) != '\n' && c != EOF);
+}
+
+int DoubleCmp(double a, double b) {
+    const double EPS = 0.000001;
+    return fabs(a - b) > EPS;
 }

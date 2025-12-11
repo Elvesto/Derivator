@@ -74,6 +74,7 @@ int CreateNode(const Node* const node, FILE* graphFile) {
     fprintf(graphFile, "\tnode%d [label=\"%s\\n value=%s \\n ", counter, DataToStr(node->data), tempStr);
     if (node->data == NUM) {
         free((char*)tempStr);
+        tempStr = NULL;
     }
     counter++;
     int temp = counter;
@@ -109,6 +110,10 @@ const char* ValueToStr(const Node* node) {
                 case DIV: return "/";
                 case POW: return "^";
                 case LN:  return "ln";
+                case COS: return "cos";
+                case SIN: return "sin";
+                case TG: return "tg";
+                case CTG: return "ctg";
                 default: return NULL;
             }
         }

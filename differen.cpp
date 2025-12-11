@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>
+#include <malloc.h>
 
 static Node* DerivatePow(Node* node);
 
@@ -52,8 +53,7 @@ Node* Derivate(Node* node) {
                     break;
                 }
                 case DIV: {
-                    temp = ADD_(MUL_(dL(node), cR(node)), MUL_(cL(node), dR(node)));
-                    temp->value.typeOp = SUB;
+                    temp = DIV_(SUB_(MUL_(dL(node), cR(node)), MUL_(cL(node), dR(node))), POW_(cR(node), NUM_(2)));
                     break;
                 }
                 case POW: {
@@ -61,25 +61,36 @@ Node* Derivate(Node* node) {
                     break;
                 }
                 case LN: {
-                    temp = MUL_(dL(node), NewNodePro(OP, {.typeOp = DIV}, NewNodePro(NUM, {.typeNum = 1}, NULL, NULL), cL(node)));
+                    temp = MUL_(dR(node), DIV_(NUM_(1), cR(node)));
                     break;
                 }
                 case SIN: {
-                    temp = MUL_(NewNodePro(OP, {.typeOp = COS}, cL(node), NULL), dL(node));
+                    temp = MUL_(COS_(cR(node)), dR(node));
                     break;
                 }
                 case COS: {
-                    temp = MUL_(NewNodePro(NUM, {.typeNum = -1}, NULL, NULL), (NewNodePro(OP, {.typeOp = COS}, cL(node), NULL), dL(node)));
+                    temp = MUL_(NUM_(-1), MUL_(SIN_(cR(node)), dR(node)));
+                    break;
                 }
+                case TG: {
+                    temp = DIV_(dR(node), POW_(COS_(cR(node)), NUM_(2)));
+                    break;
+                }
+                case CTG: {
+                    temp = MUL_(dR(node), DIV_(NUM_(-1), POW_(SIN_(cR(node)), NUM_(2))));
+                    break;
+                }
+                default:
+                    break;
             }
             break;
         }
         case NUM: {
-            temp = NewNodePro(NUM, {.typeNum = 0}, NULL, NULL);
+            temp = NUM_(0);
             break;
         }
         case VAR: {
-            temp = NewNodePro(NUM, {.typeNum = 1}, NULL, NULL);
+            temp = NUM_(1);
             break;
         }
         default: {
@@ -94,17 +105,32 @@ Node* DerivatePow(Node* node) {
     assert(node);
     Node* temp = NULL;
     if (Search(node->right, VAR) != NULL) {
-        temp = MUL_(CopyTree(node), Derivate(MUL_(NewNodePro(OP, {.typeOp = LN}, cL(node), NULL), cR(node))));
+        temp = MUL_(CopyTree(node), MUL_(dR(node), NewNodePro(OP, {.typeOp = LN}, cL(node), NULL)));
         return temp;
     }
 
     if (Search(node->left, VAR) != NULL) {
-        Node* tempNum = NewNodePro(OP, {.typeOp = SUB}, cR(node), NewNodePro(NUM, {.typeNum = 1}, NULL, NULL));
-        temp = MUL_(cR(node), MUL_(Derivate(cL(node)), NewNodePro(OP, {.typeOp = POW}, cL(node), tempNum)));
+        Node* power = SUB_(cR(node), NUM_(1));
+        temp = MUL_(cR(node), MUL_(dL(node), POW_(cL(node), power)));
         return temp;
     }
 
-    temp = NewNodePro(NUM, {.typeNum = 0}, NULL, NULL);
+    temp = NUM_(0);
 
+    return temp;
+}
+
+Node* DerivativeN(Node* node, int n) {
+    Node** arr = (Node**)calloc((size_t)n + 1, sizeof(Node*));
+    arr[0] = CopyTree(node);
+    for (int i = 1; i < n + 1; i++) {
+        arr[i] = Derivate(arr[i-1]);
+    }
+    for (int i = 0; i < n; i++) {
+        NodesDestroy(arr[i]);
+    }
+    Node* temp = arr[n];
+    free(arr);
+    
     return temp;
 }

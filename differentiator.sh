@@ -7,7 +7,7 @@ CXXFLAGS="-D _DEBUG -D PRINT_DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ 
 -Wno-missing-field-initializers -Wno-narrowing -Wno-old-style-cast -Wno-varargs -Wstack-protector -fcheck-new -fsized-deallocation -fstack-protector -fstrict-overflow -flto-odr-type-merging \
 -fno-omit-frame-pointer -Wlarger-than=32768 -Wstack-usage=8192 -pie -fPIE -Werror=vla -fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,integer-divide-by-zero,leak,nonnull-attribute,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,undefined,unreachable,vla-bound,vptr"
 NAME="-o differentiator"
-SOURCES="main.cpp tree.cpp graph.cpp tools.cpp differen.cpp"
+SOURCES="main.cpp tree.cpp graph.cpp tools.cpp parser.cpp differen.cpp tex_Dump.cpp"
 CXX="g++"
 CONHEAD="-I ./tree"
 

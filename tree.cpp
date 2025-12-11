@@ -8,6 +8,7 @@
 
 #include "graph.h"
 #include "tools.h"
+#include "parser.h"
 
 static TreeError PrintNode(Node* node, FILE* stream);
 static FileParam OpenDumpFile(const char* dumpFileName);
@@ -161,7 +162,8 @@ Node* NewNode(NodeType value) {
 }
 
 static Node* ReadNode(char** ppos) {
-    assert(ppos);
+    Node* node = GetG(ppos);
+    /*assert(ppos);
 
     char* pos = *ppos;
     if (pos[0] == ' ' || pos[0] == '\t' || pos[0] == '\n') {
@@ -209,7 +211,9 @@ static Node* ReadNode(char** ppos) {
 
     fprintf(stderr, "ERROR READ\n");
     printf("%s\n", pos);
-    return NULL;
+    return NULL;*/
+
+    return node;
 }
 
 
@@ -269,7 +273,7 @@ Node* Search(Node* node, TypeNode target) {
     return NULL;
 }
 
-void ParseType(Node* node, const char* idx) {
+/*void ParseType(Node* node, const char* idx) {
     char c = *idx;
     switch (c) {
         case '+': 
@@ -306,7 +310,7 @@ void ParseType(Node* node, const char* idx) {
             break;
         default:
             double temp = strtod(idx, NULL);
-            if (temp != 0) {
+            if (DoubleCmp(temp, 0)) {
                 node->data = NUM;
                 node->value.typeNum = temp;
             } else if (strncmp(idx, "ln", sizeof("ln") - 1) == 0) {
@@ -315,6 +319,9 @@ void ParseType(Node* node, const char* idx) {
             } else if (strncmp(idx, "sin", sizeof("sin") - 1) == 0) {
                 node->data = OP;
                 node->value.typeOp = SIN;
+            } else if (strncmp(idx, "cos", sizeof("cos") - 1) == 0) {
+                node->data = OP;
+                node->value.typeOp = COS;
             } else {
                 fprintf(stderr, "Unknown %s\n", idx);
             }
@@ -322,10 +329,10 @@ void ParseType(Node* node, const char* idx) {
     }
 
     return;
-}
+}*/
 
-Node* NewNodePro(NodeType NodeType, ValueType value, Node* left, Node* right) {
-    Node* node = NewNode(NodeType);
+Node* NewNodePro(NodeType nodeType, ValueType value, Node* left, Node* right) {
+    Node* node = NewNode(nodeType);
     if (node == NULL) {
         return NULL;
     }

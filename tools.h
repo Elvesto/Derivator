@@ -13,7 +13,7 @@
 
 #ifdef PRINT_DEBUG
     #define DEBUG_LOG(format, ...)  do { \
-        fprintf(stderr, BLUE_BOLD_COLOR "[DEBUG] %s:%d:%s(): " format "\n" COLOR_END, \
+        fprintf(stderr, RED_BOLD_COLOR "[DEBUG] %s:%d:%s(): " format "\n" COLOR_END, \
             __FILE__, __LINE__, __func__, __VA_ARGS__); \
     } while(0)
 #else
@@ -42,5 +42,7 @@ int CreateFileParam(const int argc, const char* const argv[],
 int CheckInArray(const char* value, const char* arr[], int size);
 
 void ClearStream();
+
+int DoubleCmp(double a, double b);
 
 #endif // TOOLS_H_

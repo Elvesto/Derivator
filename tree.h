@@ -83,7 +83,7 @@ Node* Search(Node* node, TypeNode target);
 
 void Compare(Node* node1, Node* node2);
 
-void ParseType(Node* node, const char* idx);
+//void ParseType(Node* node, const char* idx);
 
 Node* NewNodePro(NodeType NodeType, ValueType value, Node* left, Node* right);
 
