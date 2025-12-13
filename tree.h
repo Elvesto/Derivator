@@ -87,4 +87,8 @@ void Compare(Node* node1, Node* node2);
 
 Node* NewNodePro(NodeType NodeType, ValueType value, Node* left, Node* right);
 
+void CopyNode(Node* node1, Node* node2);
+
+void FreeNode(Node* node);
+
 #endif // THREE_H_

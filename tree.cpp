@@ -137,7 +137,7 @@ TreeError NodesDestroy(Node* node) {
         node->right = NULL;
     }
 
-    
+    node->parent = NULL;
     FREE(node);
 
     countDestroy++;
@@ -341,4 +341,17 @@ Node* NewNodePro(NodeType nodeType, ValueType value, Node* left, Node* right) {
     node->right = right;
 
     return node;
+}
+
+void CopyNode(Node* node1, Node* node2) {
+    node1->data = node2->data;
+    node1->value = node2->value;
+    node1->right = node2->right;
+    node1->left = node2->left;
+}
+
+void FreeNode(Node* node) {
+    assert(node);
+    node->left = node->right = node->parent = NULL;
+    free(node);
 }

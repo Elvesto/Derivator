@@ -14,6 +14,7 @@
 #define SIN_(a) NewNodePro(OP, {.typeOp = SIN}, NULL, (a))
 #define TG_(a) NewNodePro(OP, {.typeOp = TG}, NULL, (a))
 #define CTG_(a) NewNodePro(OP, {.typeOp = CTG}, NULL, (a))
+#define LN_(a) NewNodePro(OP, {.typeOp = LN}, NULL, (a))
 
 #define cL(a) CopyTree(a->left)
 #define cR(a) CopyTree(a->right)
@@ -25,5 +26,7 @@ Node* CopyTree(Node* node);
 Node* Derivate(Node* node);
 
 Node* DerivativeN(Node* node, int n);
+
+Node* OptimizedTree(Node* node);
 
 #endif // DIFFEREN_H_

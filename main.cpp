@@ -23,6 +23,7 @@ int main(const int argc, const char* const argv[]) {
     LoadTree(&tree, &fileLoadTree, dumpFileName);
     // TreeInit(&tree, OP, dumpFileName);
     TreeInit(&dif, OP, dumpFileName2);
+    //Node* d = OptimizedTree(Derivate(tree.root));
     Node* d = Derivate(tree.root);
     free(dif.root);
     dif.root = d;

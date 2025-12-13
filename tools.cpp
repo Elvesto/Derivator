@@ -74,5 +74,5 @@ void ClearStream() {
 
 int DoubleCmp(double a, double b) {
     const double EPS = 0.000001;
-    return fabs(a - b) > EPS;
+    return fabs(a - b) < EPS;
 }
