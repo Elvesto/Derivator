@@ -33,7 +33,7 @@ int GraphCreate(const Tree* const tree, const char* dotName, int graphNumber) {
     fclose(dotFile);
 
     char dotCompileStr[SIZE_STR_COMPILE_COMMAND] = {};
-    snprintf(dotCompileStr, SIZE_STR_COMPILE_COMMAND, "dot -Tpng %s -o images/graph%d.png", dotName, graphNumber);
+    snprintf(dotCompileStr, SIZE_STR_COMPILE_COMMAND, "dot -Tsvg %s -o images/graph%d.svg", dotName, graphNumber);
 
     system(dotCompileStr);
 
@@ -58,7 +58,7 @@ TreeError TreeDump(Tree* tree) {
         return NOT_OK;
     }
 
-    fprintf(tree->dumpFile.file, "<img src=images/graph%d.png>\n", counter);
+    fprintf(tree->dumpFile.file, "<img src=images/graph%d.svg>\n", counter);
     counter++;
 
     return OK;

@@ -13,9 +13,11 @@ static Node* GetPower(char** idx);
 
 Node* GetG(char** idx) {
     Node* res = GetAS(idx);
-    if (**idx != '\0') {
+    if (res == NULL) {
+        return NULL;
+    }
+    if (**idx != '\0' || res == NULL) {
         DEBUG_LOG("Произошла ошибка - симовол - %c\n", **idx);
-        // exit(0);
     }
     return res;
 }
@@ -30,7 +32,7 @@ Node* GetNumber(char** idx) {
     }
     if (s == temp) {
         DEBUG_LOG("Произошла ошибка - симовол - %c\n", *s);
-        exit(0);
+        return NULL;
     }
 
     *idx = s;
@@ -41,6 +43,9 @@ Node* GetNumber(char** idx) {
 Node* GetFunc(char** idx) {
     char* s = *idx;
     Node* node = NewNode(OP);
+    if (node == NULL) {
+        return NULL;
+    }
     if (strncmp(s, "ln", sizeof("ln") - 1) == 0) {
         node->data = OP;
         node->value.typeOp = LN;
@@ -62,15 +67,18 @@ Node* GetFunc(char** idx) {
     if (*s == '(') {
         s++;
         node->right = GetAS(&s);
+        if (node->right == NULL) {
+            return NULL;
+        }
         if (*s == ')') {
             s++;
         } else {
             DEBUG_LOG("Произошла ошибка - симовол - %c\n", *s);
-            exit(0);
+            return NULL;
         }
     } else {
         DEBUG_LOG("Произошла ошибка - симовол - %c\n", *s);
-        exit(0);
+        return NULL;
     }
 
     *idx = s;
@@ -81,10 +89,16 @@ Node* GetFunc(char** idx) {
 Node* GetAS(char** idx) {
     char* s = *idx;
     Node* node = GetMD(&s);
+    if (node == NULL) {
+        return NULL;
+    }
     while (*s == '+' || *s == '-') {
         int op = *s;
         s++;
         Node* temp = GetMD(&s);
+        if (temp == NULL) {
+            return NULL;
+        }
         if (op == '+') {
             node = NewNodePro(OP, {.typeOp = ADD}, node, temp);
         } else {
@@ -100,10 +114,16 @@ Node* GetAS(char** idx) {
 Node* GetMD(char** idx) {
     char* s = *idx;
     Node* node = GetPower(&s);
+    if (node == NULL) {
+        return NULL;
+    }
     while (*s == '*' || *s == '/') {
         int op = *s;
         s++;
         Node* temp = GetPower(&s);
+        if (temp == NULL) {
+            return NULL;
+        }
         if (op == '*') {
             node = NewNodePro(OP, {.typeOp = MUL}, node, temp);
         } else {
@@ -122,13 +142,16 @@ Node* GetP(char** idx) {
     if (*s == '(') {
         s++;
         res = GetAS(&s);
+        if (res == NULL) {
+            return NULL;
+        }
         if (*s == ')') {
             s++;
             *idx = s;
             return res;
         } else {
             DEBUG_LOG("Произошла ошибка - симовол - %c\n", *s);
-            exit(0);
+            return NULL;
         }
     } else if ((res = GetFunc(&s)) != NULL) {
         *idx = s;
@@ -138,6 +161,9 @@ Node* GetP(char** idx) {
         s++;
     } else {
         res = GetNumber(&s);
+        if (res == NULL) {
+            return NULL;
+        }
     }
 
     *idx = s;
@@ -148,9 +174,15 @@ Node* GetP(char** idx) {
 Node* GetPower(char** idx) {
     char* s = *idx;
     Node* node = GetP(&s);
+    if (node == NULL) {
+        return NULL;
+    }
     while (*s == '^') {
         s++;
         Node* temp = GetP(&s);
+        if (temp == NULL) {
+            return NULL;
+        }
         node = NewNodePro(OP, {.typeOp = POW}, node, temp);
     }
 

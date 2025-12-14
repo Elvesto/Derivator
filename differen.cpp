@@ -6,6 +6,7 @@
 #include <malloc.h>
 
 static Node* DerivatePow(Node* node);
+static Node* OptimizedOP(Node* node);
 
 Node* CopyTree(Node* node) {
     assert(node);
@@ -39,49 +40,27 @@ Node* Derivate(Node* node) {
     switch (node->data) {
         case OP: {
             switch (node->value.typeOp) {
-                case ADD: {
-                    temp = ADD_(dL(node), dR(node));
-                    break;
-                }
-                case SUB: {
-                    temp = ADD_(dL(node), dR(node));
-                    temp->value.typeOp = SUB;
-                    break;
-                }
-                case MUL: {
-                    temp = ADD_(MUL_(dL(node), cR(node)), MUL_(cL(node), dR(node)));
-                    break;
-                }
-                case DIV: {
-                    temp = DIV_(SUB_(MUL_(dL(node), cR(node)), MUL_(cL(node), dR(node))), POW_(cR(node), NUM_(2)));
-                    break;
-                }
-                case POW: {
-                    temp = DerivatePow(node);
-                    break;
-                }
-                case LN: {
-                    temp = MUL_(dR(node), DIV_(NUM_(1), cR(node)));
-                    break;
-                }
-                case SIN: {
-                    temp = MUL_(COS_(cR(node)), dR(node));
-                    break;
-                }
-                case COS: {
-                    temp = MUL_(NUM_(-1), MUL_(SIN_(cR(node)), dR(node)));
-                    break;
-                }
-                case TG: {
-                    temp = DIV_(dR(node), POW_(COS_(cR(node)), NUM_(2)));
-                    break;
-                }
-                case CTG: {
-                    temp = MUL_(dR(node), DIV_(NUM_(-1), POW_(SIN_(cR(node)), NUM_(2))));
-                    break;
-                }
-                default:
-                    break;
+                case ADD: temp = ADD_(dL(node), dR(node)); break;
+
+                case SUB: temp = SUB_(dL(node), dR(node)); break;
+
+                case MUL: temp = ADD_(MUL_(dL(node), cR(node)), MUL_(cL(node), dR(node))); break;
+
+                case DIV: temp = DIV_(SUB_(MUL_(dL(node), cR(node)), MUL_(cL(node), dR(node))), POW_(cR(node), NUM_(2))); break;
+
+                case POW: temp = DerivatePow(node); break;
+
+                case LN: temp = MUL_(dR(node), DIV_(NUM_(1), cR(node))); break;
+
+                case SIN: temp = MUL_(COS_(cR(node)), dR(node)); break;
+                
+                case COS: temp = MUL_(NUM_(-1), MUL_(SIN_(cR(node)), dR(node))); break;
+                
+                case TG: temp = DIV_(dR(node), POW_(COS_(cR(node)), NUM_(2))); break;
+                
+                case CTG: temp = MUL_(dR(node), DIV_(NUM_(-1), POW_(SIN_(cR(node)), NUM_(2)))); break;
+
+                default: break;
             }
             break;
         }
@@ -103,34 +82,137 @@ Node* Derivate(Node* node) {
 
 Node* DerivatePow(Node* node) {
     assert(node);
-    Node* temp = NULL;
     if (Search(node->right, VAR) != NULL) {
-        temp = MUL_(CopyTree(node), MUL_(dR(node), NewNodePro(OP, {.typeOp = LN}, cL(node), NULL)));
-        return temp;
+        return MUL_(CopyTree(node), ADD_(MUL_(dR(node), LN_(cL(node))), DIV_(MUL_(cR(node), dL(node)), cL(node))));
     }
 
     if (Search(node->left, VAR) != NULL) {
         Node* power = SUB_(cR(node), NUM_(1));
-        temp = MUL_(cR(node), MUL_(dL(node), POW_(cL(node), power)));
-        return temp;
+        return MUL_(cR(node), MUL_(dL(node), POW_(cL(node), power)));
     }
 
-    temp = NUM_(0);
-
-    return temp;
+    return NUM_(0);
 }
 
 Node* DerivativeN(Node* node, int n) {
-    Node** arr = (Node**)calloc((size_t)n + 1, sizeof(Node*));
-    arr[0] = CopyTree(node);
-    for (int i = 1; i < n + 1; i++) {
-        arr[i] = Derivate(arr[i-1]);
-    }
+    Node* cur = CopyTree(node);
     for (int i = 0; i < n; i++) {
-        NodesDestroy(arr[i]);
+        Node* temp = Derivate(cur);
+        NodesDestroy(cur);
+        cur = temp;
     }
-    Node* temp = arr[n];
-    free(arr);
-    
+    return cur;
+}
+
+Node* OptimizedTree(Node* node) {
+    assert(node);
+
+    Node* left  = node->left  ? OptimizedTree(node->left)  : NULL;
+    Node* right = node->right ? OptimizedTree(node->right) : NULL;
+
+    node->left = left;
+    if (left)  left->parent = node;
+
+    node->right = right;
+    if (right) right->parent = node;
+
+    Node* temp = OptimizedOP(node);
     return temp;
+}
+
+Node* OptimizedOP(Node* node) {
+    assert(node);
+
+    if (node->data == OP && node->left && node->right && \
+        node->left->data == NUM && node->right->data == NUM) {
+        
+        double a = node->left->value.typeNum;
+        double b = node->right->value.typeNum;
+        double res = 0;
+        
+        switch (node->value.typeOp) {
+            case ADD: res = a + b; break;
+            case SUB: res = a - b; break;
+            case MUL: res = a * b; break;
+            case DIV: res = a / b; break;
+            case POW: res = pow(a, b); break;
+            case SIN: case COS: case TG: case CTG: case LN: default: return node;
+        }
+        NodesDestroy(node->left);
+        NodesDestroy(node->right);
+        node->data = NUM;
+        node->left = node->right = NULL;
+        node->value.typeNum = res;
+        return node;
+    }
+    // a + 0 = a
+    if (node->data == OP && node->value.typeOp == ADD) {
+        if (node->left->data == NUM) {
+            if (DoubleCmp(node->left->value.typeNum, 0)) {
+                Node* temp = node->right;
+                temp->parent = node->parent;
+
+                NodesDestroy(node->left);
+                FreeNode(node);
+
+                return temp;
+            }
+        } else if (node->right->data == NUM) {
+            if (DoubleCmp(node->right->value.typeNum, 0)) {
+                Node* temp = node->left;
+                temp->parent = node->parent;
+
+                NodesDestroy(node->right);
+                FreeNode(node);
+
+                return temp;
+            }
+        }
+    } 
+    // a*0 = 0, a*1 = a
+    if (node->data == OP && node->value.typeOp == MUL) {
+        Node* temp = NULL;
+        if (node->left->data == NUM) {
+            if (DoubleCmp(node->left->value.typeNum, 0)) {
+                NodesDestroy(node->right);
+                
+                temp = NUM_(0);
+                temp->parent = node->parent;
+
+                FreeNode(node);
+                return temp;
+            }
+            if (DoubleCmp(node->left->value.typeNum, 1)) {
+                temp = node->right;
+                temp->parent = node->parent;
+
+                NodesDestroy(node->left);
+                FreeNode(node);
+
+                return temp;
+            }
+        }
+        if (node->right->data == NUM) {
+            if (DoubleCmp(node->right->value.typeNum, 0)) {
+                NodesDestroy(node->left);
+
+                temp = NUM_(0);
+                temp->parent = node->parent;
+
+                FreeNode(node);
+                return temp;
+            }
+            if (DoubleCmp(node->right->value.typeNum, 1)) {
+                temp = node->left;
+                temp->parent = node->parent;
+
+                NodesDestroy(node->right);
+                FreeNode(node);
+
+                return temp;
+            }
+        }
+    }
+
+    return node;
 }
